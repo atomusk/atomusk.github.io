@@ -59,7 +59,7 @@
 		popupAnchor: [0, -28]
 	});
 			           	var eu = L.icon({
-		iconUrl: 'typeF-512.png',
+		iconUrl: 'schuko.svg',
 		iconSize: [32, 37],
 		iconAnchor: [16, 18],
 		popupAnchor: [0, -28]
@@ -128,6 +128,7 @@
             			] 
             		
             }
+            
             function onEachMarker(feature, layer){
                 layer.bindContextMenu({
                     contextmenu: true,
@@ -162,7 +163,7 @@
             function getAccess(e){
                 getIsochrones([e.latlng.lng,e.latlng.lat]);
             }
-            function getIsochrones(point){
+            function getIsochrones(){
                 $.ajax({
                     type: "GET", //rest Type
                     dataType: 'json',
@@ -198,7 +199,10 @@
                         access.id="access";
                     }
                 });
+                
+              
             }
+            	getIsochrones();
             </script>
     </body>
 </html>
