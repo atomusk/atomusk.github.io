@@ -188,12 +188,13 @@
                         data.features=difference;
                         access = new L.geoJson(data,{
                             onEachFeature: function(feature,layer){
-                                layer.bindPopup("Isochrone: " + feature.properties.value);
+                                //layer.bindPopup("Isochrone: " + feature.properties.value);
                             },
                             style: function(feature) {
                                 ratio=feature.properties.value/1800;
-                                return {color :"rgb(" + String(Math.round(255*ratio)) + "," + String(Math.round(255*(1-ratio)))+ ", 0)",
-                                opacity: 0.6};
+                                //return {color :"rgb(" + String(Math.round(255*ratio)) + "," + String(Math.round(255*(1-ratio)))+ ", 0)",
+                                return {color :feature.properties.value,
+                                opacity: 1};
                             }
                         }).addTo(map);
                         access.id="access";
