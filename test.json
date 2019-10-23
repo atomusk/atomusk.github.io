@@ -15,6 +15,12 @@
                     ]
                 ]
             },
+             "style": {
+                "__comment": "all SVG styles allowed",
+                "fill":"blue",
+                "stroke-width":"3",
+                "fill-opacity":0.6
+            },
             "properties": {
                 "group_index": 0,
                 "value": 500,
