@@ -1,0 +1,204 @@
+<html>
+    <head>
+        <title>A fullscreen ORS webmap</title>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.css"  />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-contextmenu/1.4.0/leaflet.contextmenu.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-contextmenu/1.4.0/leaflet.contextmenu.js"></script>
+        <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+        <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
+        <style>
+            body {
+                padding: 0;
+                margin: 0;
+            }
+            html, body, #map {
+                height: 100%;
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="map"></div>
+        <script>
+             var map = L.map('map',{
+                contextmenu: true,
+                contextmenuWidth: 140,
+                contextmenuItems: [
+                    {
+                        text: 'get Isochrones',
+                        callback: getAccess
+                    }
+                ]
+            }).setView([48.8547793 ,2.3478021], 7);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18
+            }).addTo(map);
+            //the geojson data:
+           
+           
+           	var Combo = L.icon({
+		iconUrl: 'connector-ccs-eu.svg',
+		iconSize: [32, 37],
+		iconAnchor: [16, 18],
+		popupAnchor: [0, -28]
+	});
+	
+	           	var Chademo = L.icon({
+		iconUrl: 'connector-chademo-eu.svg',
+		iconSize: [32, 37],
+		iconAnchor: [16, 18],
+		popupAnchor: [0, -28]
+	});
+	
+		           	var t2 = L.icon({
+		iconUrl: 'connector-type2.svg',
+		iconSize: [32, 37],
+		iconAnchor: [16, 18],
+		popupAnchor: [0, -28]
+	});
+			           	var eu = L.icon({
+		iconUrl: 'typeF-512.png',
+		iconSize: [32, 37],
+		iconAnchor: [16, 18],
+		popupAnchor: [0, -28]
+	});
+
+        
+            var data = {
+                "type": "FeatureCollection",
+                "features": [ 
+		                    {
+		                        "type": "Feature",
+		                        "properties": {
+		                            "name": "ccs"
+		                        },
+		                        
+		                        "geometry": {
+		                            "type": "Point",
+		                            "coordinates": [
+		                                1.1915837,48.8547793 
+		                            ]
+		                        }
+		                    },
+            		
+		                    {
+		                        "type": "Feature",
+		                        "properties": {
+		                            "name": "chademo"
+		                        },
+		                        
+		                        "geometry": {
+		                            "type": "Point",
+		                            "coordinates": [
+		                                1.8915837,48.8547793 
+		                            ]
+		                        }
+		                    }
+		                    ,
+            		
+		                    {
+		                        "type": "Feature",
+		                        "properties": {
+		                            "name": "t2"
+		                        },
+		                        
+		                        "geometry": {
+		                            "type": "Point",
+		                            "coordinates": [
+		                                2.2046585,48.8547793 
+		                            ]
+		                        }
+		                    },
+            		
+		                    {
+		                        "type": "Feature",
+		                        "properties": {
+		                            "name": "eu"
+		                        },
+		                        
+		                        "geometry": {
+		                            "type": "Point",
+		                            "coordinates": [
+		                                2.3478021,48.8547793 
+		                            ]
+		                        }
+		                    }
+            			] 
+            		
+            }
+            function onEachMarker(feature, layer){
+                layer.bindContextMenu({
+                    contextmenu: true,
+                    contextmenuWidth: 140,
+                    contextmenuItems: [
+                        {
+                            text: 'get Isochrones from marker',
+                            callback: getAccessFromMarker
+                        }
+                    ]
+                })
+                layer.bindPopup(feature.properties.name);  
+            };
+            var markers = L.geoJSON(data, {
+            			pointToLayer: function (feature, latlng) {
+            				switch (feature.properties.name) { 
+            				case 'ccs':
+								return L.marker(latlng, {icon: Combo});
+							case 'chademo':
+								return L.marker(latlng, {icon: Chademo});
+							case 't2':
+								return L.marker(latlng, {icon: t2});
+							case 'eu':
+								return L.marker(latlng, {icon: eu});
+            				}
+		},
+                onEachFeature: onEachMarker
+            }).addTo(map);
+            function getAccessFromMarker(e){
+                getIsochrones(e.relatedTarget.feature.geometry.coordinates);
+            }
+            function getAccess(e){
+                getIsochrones([e.latlng.lng,e.latlng.lat]);
+            }
+            function getIsochrones(point){
+                $.ajax({
+                    type: "GET", //rest Type
+                    dataType: 'json',
+                    //url: "http://192.168.0.46:32770/ors/isochrones?locations=8.676581,47.418204&profile=driving-car&range_type=time&interval=5000&range=20000&units=km&location_type=start&intersections=false",
+                    //url: "https://api.openrouteservice.org/isochrones?locations=" + String(point[0]) + "," + String(point[1]) +"&profile=driving-car&range_type=time&interval=500&range=2000&units=km&location_type=start&intersections=false&api_key=5b3ce3597851110001cf62484157286f45d941b99018b387b26aafca",
+                    url:"./test.json",
+                    //url: "https://api.openrouteservice.org/isochrones?locations=" + String(point[0]) + "," + String(point[1]) +"&profile=driving-car&range_type=time&interval=500&range=2000&units=km&location_type=start&intersections=false&api_key=5b3ce3597851110001cf62484157286f45d941b99018b387b26aafca",
+                    async: false,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        map.eachLayer(function (layer) {
+                            if (layer.id === 'access'){// it's the access layer
+                                map.removeLayer(layer);
+                            } 
+                        });
+                        var difference=[];
+                        for (i=0; i<(data.features.length-1); i++){
+                            console.log(i);
+                            difference.push(turf.difference(data.features[i+1],data.features[i]));
+                        }
+                        difference.push(data.features[0]);
+                        data.features=difference;
+                        access = new L.geoJson(data,{
+                            onEachFeature: function(feature,layer){
+                                layer.bindPopup("Isochrone: " + feature.properties.value);
+                            },
+                            style: function(feature) {
+                                ratio=feature.properties.value/1800;
+                                return {color :"rgb(" + String(Math.round(255*ratio)) + "," + String(Math.round(255*(1-ratio)))+ ", 0)",
+                                opacity: 0.6};
+                            }
+                        }).addTo(map);
+                        access.id="access";
+                    }
+                });
+            }
+            </script>
+    </body>
+</html>
